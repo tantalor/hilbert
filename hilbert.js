@@ -35,33 +35,31 @@ function step(ctx, n) {
   var p = (1 - k) * Math.pow(2, -n+1);
   
   if (n == 0) {
-    return new Promise(function(resolve) {
-      requestAnimationFrame(resolve);
-    }).then(function() {
-      ctx.beginPath();
-      ctx.moveTo(-k, -k);
-      ctx.lineTo(-k, k);
-      ctx.lineTo(k, k);
-      ctx.lineTo(k, -k);
-      ctx.stroke();
+    return new Promise(function (resolve) {
+      requestAnimationFrame(function() {
+        ctx.beginPath();
+        ctx.moveTo(-k, -k);
+        ctx.lineTo(-k, k);
+        ctx.lineTo(k, k);
+        ctx.lineTo(k, -k);
+        ctx.stroke();
+        resolve();
+      });
     });
   }
   
-  return new Promise(function(resolve) {
-    requestAnimationFrame(resolve);
-  }).then(function() {
-    // Scale Down
-    scale(ctx, .5, .5);
-    
-    // Bottom Left
-    ctx.save();
-    ctx.translate(-1, -1);
-    ctx.scale(1, -1);
-    ctx.rotate(-Math.PI/2);
-    return step(ctx, n-1);
-  }).then(function() {
+  // Scale Down
+  scale(ctx, .5, .5);
+
+  // Bottom Left
+  ctx.save();
+  ctx.translate(-1, -1);
+  ctx.scale(1, -1);
+  ctx.rotate(-Math.PI/2);
+  
+  return step(ctx, n-1).then(function() {
     ctx.restore();
-    
+
     // Left Connection
     ctx.beginPath();
     ctx.moveTo(-2+p, -p);
@@ -73,7 +71,7 @@ function step(ctx, n) {
     ctx.translate(-1, 1);
     return step(ctx, n-1);
   }).then(function() {
-    ctx.restore();    
+    ctx.restore();
     
     // Top Connection
     ctx.beginPath();
@@ -102,7 +100,7 @@ function step(ctx, n) {
     return step(ctx, n-1);
   }).then(function() {
     ctx.restore();
-    
+
     // Scale Up
     scale(ctx, 2, 2);
   });
