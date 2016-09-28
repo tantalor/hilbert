@@ -14,15 +14,14 @@ function hilbert(canvas, opt_w, opt_h) {
   ctx.translate(.5, .5); // (0, 0, 1, 1) -> (-.5, -.5, .5, .5)
   scale(ctx, .5, -.5); // (-.5, -.5, .5, .5) -> (-1, 1, 1, -1)
   
-  var i = 0;
+  var n = 0;
   function iter() {
-    ctx.clearRect(-1, -1, 2, 2);
-    step(ctx, i++).then(iter);
+    // Clear first cell.
+    var t = Math.pow(1 / 2, n - 1);
+    ctx.clearRect(-1, -1, t, t);
+    return step(ctx, n++).then(iter);
   }
-  
-  return new Promise(function(resolve) {
-    requestAnimationFrame(resolve);
-  }).then(iter);
+  iter();
 }
 
 function scale(ctx, dx, dy) {
@@ -32,7 +31,8 @@ function scale(ctx, dx, dy) {
 
 function step(ctx, n) {
   var k = 1/2;
-  var p = (1 - k) * Math.pow(2, -n+1);
+  var p = (1 - k) * Math.pow(2, 1 - n);
+  var g = 4 * Math.pow(1 / 2, n)
   
   if (n == 0) {
     return new Promise(function (resolve) {
@@ -48,6 +48,7 @@ function step(ctx, n) {
     });
   }
   
+  
   // Scale Down
   scale(ctx, .5, .5);
 
@@ -61,6 +62,7 @@ function step(ctx, n) {
     ctx.restore();
 
     // Left Connection
+    ctx.clearRect(-2, 0, g, g);
     ctx.beginPath();
     ctx.moveTo(-2+p, -p);
     ctx.lineTo(-2+p, p);
@@ -74,6 +76,7 @@ function step(ctx, n) {
     ctx.restore();
     
     // Top Connection
+    ctx.clearRect(0, 0, g, g);
     ctx.beginPath();
     ctx.moveTo(-p, p);
     ctx.lineTo(p, p);
@@ -86,7 +89,8 @@ function step(ctx, n) {
   }).then(function() {
     ctx.restore();
     
-    // Bottom Connection
+    // Right Connection
+    ctx.clearRect(2, 0, -g, -g);
     ctx.beginPath();
     ctx.moveTo(2-p, p);
     ctx.lineTo(2-p, -p);
